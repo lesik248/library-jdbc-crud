@@ -1,6 +1,6 @@
 package org.lab3.dao;
 
-import org.lab3.db.JDBCConnectionException;
+import org.lab3.connector.JDBCConnectionException;
 import org.lab3.model.Reader;
 
 import java.sql.Connection;

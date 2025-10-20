@@ -1,4 +1,4 @@
-package org.lab3.db;
+package org.lab3.connector;
 
 import org.lab3.config.ConfigurationManager;
 

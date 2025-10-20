@@ -12,7 +12,7 @@ public class ConfigurationManager {
     private ConfigurationManager() {
         driverName = "com.mysql.cj.jdbc.Driver";
         props = new Properties();
-        try(InputStream in = Files.newInputStream(Paths.get("C:\\Users\\alesy\\Desktop\\OnlyFamcs\\3_year\\WEB\\lab3_Yarmosh\\src\\main\\resources\\database.properties"))){
+        try(InputStream in = Files.newInputStream(Paths.get("C:\\Users\\alesy\\Desktop\\OnlyFamcs\\3_year\\WEB\\lab3_Vyshnikova\\src\\main\\resources\\database.properties"))){
             props.load(in);
         } catch (IOException e) {
             throw new RuntimeException(e);

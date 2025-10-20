@@ -1,4 +1,4 @@
-package org.lab3.db;
+package org.lab3.connector;
 
 public class JDBCConnectionException extends Exception {
     public JDBCConnectionException(String message) {

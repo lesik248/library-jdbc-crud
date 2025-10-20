@@ -1,7 +1,7 @@
 package org.lab3.dao;
 
-import org.lab3.db.JDBCConnectionException;
-import org.lab3.db.JdbcConnector;
+import org.lab3.connector.JDBCConnectionException;
+import org.lab3.connector.JdbcConnector;
 
 import java.sql.SQLException;
 import java.util.List;
