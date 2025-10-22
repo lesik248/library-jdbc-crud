@@ -1,6 +1,6 @@
 package org.lab3.service;
 
-import org.lab3.connector.JDBCConnectionException;
+import org.lab3.pool.JDBCConnectionException;
 import org.lab3.dao.DAOBook;
 import org.lab3.dao.DAOLog;
 import org.lab3.dao.DAOReader;
@@ -9,7 +9,6 @@ import org.lab3.model.Reader;
 import org.lab3.model.Log;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
@@ -20,7 +19,7 @@ public class LibraryService {
     private final DAOLog daoLog;
     private final DAOReader daoReader;
 
-    public LibraryService() {
+    public LibraryService() throws JDBCConnectionException {
         daoBook = new DAOBook();
         daoLog = new DAOLog();
         daoReader = new DAOReader();

@@ -1,6 +1,7 @@
 package org.lab3.main;
 
 import org.lab3.model.Book;
+import org.lab3.pool.JDBCConnectionException;
 import org.lab3.service.LibraryService;
 import org.lab3.service.LibraryServiceException;
 
@@ -10,8 +11,7 @@ import java.util.Scanner;
 
 public class App 
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws JDBCConnectionException {
         LibraryService libraryService = new LibraryService();
         Scanner myObj = new Scanner(System.in);
         String choice;
@@ -32,10 +32,11 @@ public class App
                         String author = myObj.nextLine();
                         System.out.println("Введите название книги: ");
                         String bookTitle = myObj.nextLine();
-                        System.out.println(libraryService.getFreeCopiesOfBook(author, bookTitle));
+                        System.out.println("Свободных копий: " + libraryService.getFreeCopiesOfBook(author, bookTitle));
                         break;
                     }
                     case "2": {
+                        System.out.println("Читатели с задолженностью более 1 месяца: ");
                         libraryService.getReadersWithDebt().forEach(System.out::println);
                         break;
                     }

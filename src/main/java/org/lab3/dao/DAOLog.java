@@ -1,6 +1,6 @@
 package org.lab3.dao;
 
-import org.lab3.connector.JDBCConnectionException;
+import org.lab3.pool.JDBCConnectionException;
 import org.lab3.model.Log;
 
 import java.sql.Connection;
@@ -23,10 +23,15 @@ public class DAOLog extends DAO<Log> {
     private static final String SELECT_ALL_LOG =
             "SELECT * FROM logbook";
 
-    public void create(Log log) throws JDBCConnectionException {
+    public DAOLog() throws JDBCConnectionException {
+    }
 
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(CREATE_LOG)) {
+    public void create(Log log) throws JDBCConnectionException {
+        Connection conn = null;
+
+        try {
+            conn = pool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(CREATE_LOG);
 
             ps.setInt(1, log.getBookId());
             ps.setInt(2, log.getReaderId());
@@ -38,10 +43,16 @@ public class DAOLog extends DAO<Log> {
         } catch (SQLException e) {
             throw new JDBCConnectionException("Failed to create Log", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public Log read(int id) throws JDBCConnectionException {
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(READ_LOG)) {
+        Connection conn = null;
+
+        try {
+            conn = pool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(READ_LOG);
 
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -61,10 +72,16 @@ public class DAOLog extends DAO<Log> {
         } catch (SQLException e) {
             throw new JDBCConnectionException("Failed to read Log", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public void update(Log log) throws JDBCConnectionException {
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(UPDATE_LOG)) {
+        Connection conn = null;
+
+        try {
+            conn = pool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(UPDATE_LOG);
 
             ps.setString(1, String.valueOf(log.getBookId()));
             ps.setString(2, String.valueOf(log.getReaderId()));
@@ -76,10 +93,16 @@ public class DAOLog extends DAO<Log> {
         } catch (SQLException | JDBCConnectionException e) {
             throw new JDBCConnectionException("Failed to update Log", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public void delete(int id) throws JDBCConnectionException {
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(DELETE_LOG)) {
+        Connection conn = null;
+
+        try {
+            conn = pool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(DELETE_LOG);
 
             ps.setInt(1, id);
             ps.executeUpdate();
@@ -87,12 +110,17 @@ public class DAOLog extends DAO<Log> {
         } catch (SQLException | JDBCConnectionException e) {
             throw new JDBCConnectionException("Failed to delete Log", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public List<Log> getAll() throws JDBCConnectionException {
+        Connection conn = null;
         List<Log> logs = new ArrayList<>();
 
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_ALL_LOG)) {
+        try {
+            conn = pool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SELECT_ALL_LOG);
 
             ResultSet rs = ps.executeQuery();
 
@@ -109,6 +137,9 @@ public class DAOLog extends DAO<Log> {
             }
         } catch (SQLException | JDBCConnectionException e) {
             throw new JDBCConnectionException("Failed to delete Log", e);
+        }
+        finally {
+            pool.releaseConnection(conn);
         }
         return logs;
     }

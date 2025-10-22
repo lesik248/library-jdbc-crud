@@ -33,5 +33,8 @@ public class ConfigurationManager {
     public String getDriverName() {
         return driverName;
     }
+    public int getPoolSize() {
+        return 10;
+    }
 }
 

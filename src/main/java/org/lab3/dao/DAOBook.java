@@ -1,6 +1,6 @@
 package org.lab3.dao;
 
-import org.lab3.connector.JDBCConnectionException;
+import org.lab3.pool.JDBCConnectionException;
 import org.lab3.model.Book;
 
 import java.sql.Connection;
@@ -23,11 +23,15 @@ public class DAOBook extends DAO<Book> {
     private static final String SELECT_ALL_BOOK =
             "SELECT * FROM book";
 
+    public DAOBook() throws JDBCConnectionException {
+    }
+
     public void create(Book book) throws JDBCConnectionException {
+        Connection conn = null;
+        try {
+            conn = pool.getConnection();
 
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(CREATE_BOOK)) {
-
+            PreparedStatement ps = conn.prepareStatement(CREATE_BOOK);
             ps.setString(1, book.getTitle());
             ps.setString(2, book.getAuthor());
             ps.setInt(3, book.getCopies());
@@ -37,11 +41,16 @@ public class DAOBook extends DAO<Book> {
         } catch (SQLException e) {
             throw new JDBCConnectionException("Failed to create Book", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public Book read(int id) throws JDBCConnectionException {
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(READ_BOOK)) {
+        Connection conn = null;
+        try {
+             conn = pool.getConnection();
 
+             PreparedStatement ps = conn.prepareStatement(READ_BOOK);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -58,10 +67,17 @@ public class DAOBook extends DAO<Book> {
         } catch (SQLException e) {
             throw new JDBCConnectionException("Failed to read Book", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public void update(Book book) throws JDBCConnectionException {
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(UPDATE_BOOK)) {
+        Connection conn = null;
+
+        try {
+             conn = pool.getConnection();
+
+             PreparedStatement ps = conn.prepareStatement(UPDATE_BOOK);
 
             ps.setString(1, String.valueOf(book.getTitle()));
             ps.setString(2, String.valueOf(book.getAuthor()));
@@ -73,10 +89,16 @@ public class DAOBook extends DAO<Book> {
         } catch (SQLException | JDBCConnectionException e) {
             throw new JDBCConnectionException("Failed to update Book", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public void delete(int id) throws JDBCConnectionException {
-        try (Connection conn = connector.getConnection();
-             PreparedStatement ps = conn.prepareStatement(DELETE_BOOK)) {
+        Connection conn = null;
+        try {
+             conn = pool.getConnection();
+
+             PreparedStatement ps = conn.prepareStatement(DELETE_BOOK);
 
             ps.setInt(1, id);
             ps.executeUpdate();
@@ -84,18 +106,19 @@ public class DAOBook extends DAO<Book> {
         } catch (SQLException | JDBCConnectionException e) {
             throw new JDBCConnectionException("Failed to delete Book", e);
         }
+        finally {
+            pool.releaseConnection(conn);
+        }
     }
     public List<Book> getAll() throws JDBCConnectionException {
-        List<Book> books = new ArrayList<>();
         Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        List<Book> books = new ArrayList<>();
 
         try {
-            conn = connector.getConnection();
+            conn = pool.getConnection();
 
-            ps = conn.prepareStatement(SELECT_ALL_BOOK);
-            rs = ps.executeQuery();
+            PreparedStatement ps = conn.prepareStatement(SELECT_ALL_BOOK);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Book book = new Book(
@@ -107,7 +130,10 @@ public class DAOBook extends DAO<Book> {
                 books.add(book);
             }
         } catch (SQLException e) {
-            throw new JDBCConnectionException("Ошибка при получении данных из таблицы book", e);
+            throw new JDBCConnectionException("Failed to get all Books", e);
+        }
+        finally {
+            pool.releaseConnection(conn);
         }
 
         return books;
