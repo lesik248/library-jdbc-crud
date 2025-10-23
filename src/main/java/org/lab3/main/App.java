@@ -68,6 +68,7 @@ public class App
                         System.out.println("Введите название книги: ");
                         String title = myObj.nextLine();
                         libraryService.giveBook(name, author, title);
+                        System.out.println("Книга успешно выдана");
                         break;
                     }
                     case "5": {
@@ -76,6 +77,7 @@ public class App
                         System.out.println("Введите название книги: ");
                         String title = myObj.nextLine();
                         libraryService.removeBook(author, title);
+                        System.out.println("Экземпляр книги успешно списан");
                         break;
                     }
                     case "0": {
