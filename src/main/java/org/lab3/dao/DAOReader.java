@@ -30,7 +30,7 @@ public class DAOReader extends DAO<Reader> {
     public DAOReader() throws JDBCConnectionException {
     }
 
-    public void create(Reader reader) throws JDBCConnectionException {
+    public void create(Reader reader) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -41,18 +41,16 @@ public class DAOReader extends DAO<Reader> {
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка при добавлении читателя в базу данных", e);
-            throw new JDBCConnectionException("Не удалось добавить читателя в базу данных", e);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Неизвестная ошибка при создании читателя", e);
-            throw new JDBCConnectionException("Произошла неизвестная ошибка при добавлении читателя", e);
         }
         finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public Reader read(int id) throws JDBCConnectionException {
+    public Reader read(int id) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -66,23 +64,21 @@ public class DAOReader extends DAO<Reader> {
                 return reader;
             } else {
                 logger.warning("Читатель с ID " + id + " не найден");
-                return null;
             }
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка при чтении данных читателя", e);
-            throw new JDBCConnectionException("Не удалось прочитать данные читателя", e);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Неизвестная ошибка при чтении читателя", e);
-            throw new JDBCConnectionException("Произошла неизвестная ошибка при чтении данных", e);
         }
         finally {
             pool.releaseConnection(conn);
         }
+        return null;
     }
 
-    public void update(Reader reader) throws JDBCConnectionException {
+    public void update(Reader reader) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -99,18 +95,16 @@ public class DAOReader extends DAO<Reader> {
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка при обновлении данных читателя", e);
-            throw new JDBCConnectionException("Не удалось обновить данные читателя", e);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Неизвестная ошибка при обновлении читателя", e);
-            throw new JDBCConnectionException("Произошла неизвестная ошибка при обновлении данных", e);
         }
         finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public void delete(int id) throws JDBCConnectionException {
+    public void delete(int id) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -126,18 +120,16 @@ public class DAOReader extends DAO<Reader> {
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка при удалении читателя", e);
-            throw new JDBCConnectionException("Не удалось удалить читателя", e);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Неизвестная ошибка при удалении читателя", e);
-            throw new JDBCConnectionException("Произошла неизвестная ошибка при удалении данных", e);
         }
         finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public List<Reader> getAll() throws JDBCConnectionException {
+    public List<Reader> getAll() {
         Connection conn = null;
         List<Reader> readers = new ArrayList<>();
 
@@ -154,11 +146,9 @@ public class DAOReader extends DAO<Reader> {
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка при получении списка читателей", e);
-            throw new JDBCConnectionException("Не удалось получить список читателей", e);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Неизвестная ошибка при получении всех читателей", e);
-            throw new JDBCConnectionException("Произошла неизвестная ошибка при получении списка", e);
         }
         finally {
             pool.releaseConnection(conn);

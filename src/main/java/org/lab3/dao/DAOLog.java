@@ -31,7 +31,7 @@ public class DAOLog extends DAO<Log> {
         super();
     }
 
-    public void create(Log log) throws JDBCConnectionException {
+    public void create(Log log) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -48,16 +48,14 @@ public class DAOLog extends DAO<Log> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при создании записи в журнале", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при создании записи в журнале", e);
-            throw new JDBCConnectionException("Не удалось создать запись в журнале", e);
         } finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public Log read(int id) throws JDBCConnectionException {
+    public Log read(int id) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -78,21 +76,19 @@ public class DAOLog extends DAO<Log> {
                 return log;
             } else {
                 logger.warning("Запись в журнале с ID=" + id + " не найдена.");
-                return null;
             }
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при чтении записи из журнала", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при чтении записи из журнала", e);
-            throw new JDBCConnectionException("Не удалось прочитать запись из журнала", e);
         } finally {
             pool.releaseConnection(conn);
         }
+        return null;
     }
 
-    public void update(Log log) throws JDBCConnectionException {
+    public void update(Log log) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -114,16 +110,14 @@ public class DAOLog extends DAO<Log> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при обновлении записи журнала", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при обновлении записи журнала", e);
-            throw new JDBCConnectionException("Не удалось обновить запись в журнале", e);
         } finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public void delete(int id) throws JDBCConnectionException {
+    public void delete(int id) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -139,16 +133,14 @@ public class DAOLog extends DAO<Log> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при удалении записи из журнала", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при удалении записи из журнала", e);
-            throw new JDBCConnectionException("Не удалось удалить запись из журнала", e);
         } finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public List<Log> getAll() throws JDBCConnectionException {
+    public List<Log> getAll() {
         Connection conn = null;
         List<Log> logs = new ArrayList<>();
 
@@ -172,14 +164,11 @@ public class DAOLog extends DAO<Log> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при получении списка записей", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при получении списка записей", e);
-            throw new JDBCConnectionException("Не удалось получить список записей из журнала", e);
         } finally {
             pool.releaseConnection(conn);
         }
-
         return logs;
     }
 }

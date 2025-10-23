@@ -1,5 +1,4 @@
 package org.lab3.service;
-
 import org.lab3.pool.ConnectionPool;
 import org.lab3.pool.JDBCConnectionException;
 import org.lab3.dao.DAOBook;
@@ -14,19 +13,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LibraryService {
     private final DAOBook daoBook;
     private final DAOLog daoLog;
     private final DAOReader daoReader;
 
+    private static final Logger logger = Logger.getLogger(LibraryService.class.getName());
+
     public LibraryService() throws JDBCConnectionException {
-        daoBook = new DAOBook();
-        daoLog = new DAOLog();
-        daoReader = new DAOReader();
+
+            daoBook = new DAOBook();
+            daoLog = new DAOLog();
+            daoReader = new DAOReader();
     }
-    private Book getBookByTitle(String bookTitle, String author) throws LibraryServiceException {
-        try {
+    private Book getBookByTitle(String bookTitle, String author) {
             List<Book> books = daoBook.getAll();
             Book targetBook = null;
 
@@ -40,16 +43,9 @@ public class LibraryService {
                 throw new LibraryServiceException("Книга " + bookTitle + " не найдена");
             }
             return targetBook;
-        }
-        catch (JDBCConnectionException e) {
-            throw new LibraryServiceException("Ошибка доступа к БД", e);
-        }
     }
-
-    public int getFreeCopiesOfBook(String author, String bookTitle) throws LibraryServiceException {
-        try {
+    public int getFreeCopiesOfBook(String author, String bookTitle) {
             Book targetBook = getBookByTitle(bookTitle, author);
-
             int freeCopies = targetBook.getCopies();
             List<Log> logs = daoLog.getAll();
             for (Log log : logs) {
@@ -58,14 +54,8 @@ public class LibraryService {
                 }
             }
             return freeCopies;
-        }
-        catch (JDBCConnectionException e) {
-            throw new LibraryServiceException("Ошибка доступа к БД", e);
-        }
     }
-
-    public List<Reader> getReadersWithDebt() throws LibraryServiceException {
-        try {
+    public List<Reader> getReadersWithDebt() {
             List<Log> logs = daoLog.getAll();
             List<Reader> readersWithDebt = new ArrayList<>();
             for (Log log : logs) {
@@ -77,16 +67,9 @@ public class LibraryService {
                 throw new LibraryServiceException("Нет читателей с задолженностью более 1 месяца");
             }
             return readersWithDebt;
-        }
-        catch (JDBCConnectionException e) {
-                throw new LibraryServiceException("Ошибка доступа к БД", e);
-        }
     }
-
-    public HashMap<Book, Integer> getBooksForAuthor(String author) throws LibraryServiceException {
-        try {
+    public HashMap<Book, Integer> getBooksForAuthor(String author) {
             HashMap<Book, Integer> booksInfo = new HashMap<>();
-
             List<Book> books = daoBook.getAll();
             for (Book book : books) {
                 String bookAuthor = book.getAuthor();
@@ -99,13 +82,8 @@ public class LibraryService {
                 throw new LibraryServiceException("Нет книг этого автора");
             }
             return booksInfo;
-        }
-        catch (JDBCConnectionException e) {
-            throw new LibraryServiceException("Ошибка доступа к БД", e);
-        }
     }
-    public Reader getReaderByName(String name) throws LibraryServiceException {
-        try {
+    public Reader getReaderByName(String name) {
             List<Reader> readers = daoReader.getAll();
 
             Reader targetReader = null;
@@ -115,15 +93,9 @@ public class LibraryService {
                 }
             }
             return targetReader;
-        }
-        catch (JDBCConnectionException e) {
-            return null;
-        }
-
     }
 
-    public void giveBook(String name, String author, String bookTitle) throws LibraryServiceException {
-        try {
+    public void giveBook(String name, String author, String bookTitle) {
             Book targetBook = getBookByTitle(bookTitle, author);
 
             Reader targetReader = getReaderByName(name);
@@ -146,32 +118,24 @@ public class LibraryService {
                     returnDate.toString(),
                     (int) debtDays
             ));
-        }
-        catch (JDBCConnectionException e) {
-            throw new LibraryServiceException("Ошибка доступа к БД", e);
-        }
     }
-    public void removeBook(String author, String title) throws LibraryServiceException {
-        try {
-            if (getFreeCopiesOfBook(author, title) > 0) {
-                Book targetBook = getBookByTitle(title, author);
-                targetBook.setCopies(targetBook.getCopies() - 1);
-                daoBook.update(targetBook);
-                if (targetBook.getCopies() == 0) {
-                    daoBook.delete(targetBook.getId());
-                }
+    public void removeBook(String author, String title) {
+        if (getFreeCopiesOfBook(author, title) > 0) {
+            Book targetBook = getBookByTitle(title, author);
+            targetBook.setCopies(targetBook.getCopies() - 1);
+            daoBook.update(targetBook);
+            if (targetBook.getCopies() == 0) {
+                daoBook.delete(targetBook.getId());
             }
         }
-        catch (JDBCConnectionException e) {
-            throw new LibraryServiceException("Ошибка доступа к БД", e);
-        }
     }
-    public void closeDbConnections() throws LibraryServiceException {
+    public void close() throws LibraryServiceException {
         try {
             ConnectionPool.getInstance().closeAllConnections();
         }
         catch (JDBCConnectionException e) {
-            throw new LibraryServiceException(e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw new LibraryServiceException("Не удалось закрыть соединения");
         }
     }
 }

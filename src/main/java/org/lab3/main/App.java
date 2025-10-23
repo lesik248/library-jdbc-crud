@@ -11,8 +11,15 @@ import java.util.Scanner;
 
 public class App 
 {
-    public static void main( String[] args ) throws JDBCConnectionException {
-        LibraryService libraryService = new LibraryService();
+    public static void main( String[] args ) {
+        LibraryService libraryService;
+        try {
+            libraryService = new LibraryService();
+        }
+        catch (JDBCConnectionException e) {
+            System.out.println("⚠️ Ошибка сервера");
+            return;
+        }
         Scanner myObj = new Scanner(System.in);
         String choice;
         System.out.println("Библиотека");
@@ -72,7 +79,7 @@ public class App
                         break;
                     }
                     case "0": {
-                        libraryService.closeDbConnections();
+                        libraryService.close();
                         return;
                     }
                     default: {

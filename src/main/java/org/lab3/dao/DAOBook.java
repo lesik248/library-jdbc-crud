@@ -31,7 +31,7 @@ public class DAOBook extends DAO<Book> {
         super();
     }
 
-    public void create(Book book) throws JDBCConnectionException {
+    public void create(Book book) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -45,17 +45,17 @@ public class DAOBook extends DAO<Book> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при добавлении книги", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при добавлении книги", e);
-            throw new JDBCConnectionException("Не удалось добавить книгу в базу данных", e);
         } finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public Book read(int id) throws JDBCConnectionException {
+    public Book read(int id) {
         Connection conn = null;
+        Book book = null;
+
         try {
             conn = pool.getConnection();
             PreparedStatement ps = conn.prepareStatement(READ_BOOK);
@@ -63,31 +63,27 @@ public class DAOBook extends DAO<Book> {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                Book book = new Book(
+                book = new Book(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("author"),
                         rs.getInt("copies")
                 );
                 logger.info("Книга успешно найдена: ID=" + id);
-                return book;
             } else {
                 logger.warning("Книга с ID=" + id + " не найдена.");
-                return null;
             }
-
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при чтении книги", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при чтении книги", e);
-            throw new JDBCConnectionException("Не удалось прочитать книгу из базы данных", e);
         } finally {
             pool.releaseConnection(conn);
         }
+        return book;
     }
 
-    public void update(Book book) throws JDBCConnectionException {
+    public void update(Book book) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -106,16 +102,16 @@ public class DAOBook extends DAO<Book> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при обновлении книги", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при обновлении книги", e);
-            throw new JDBCConnectionException("Не удалось обновить книгу в базе данных", e);
-        } finally {
+            logger.log(Level.SEVERE, "Не удалось обновить книгу в базе данных", e);
+        }
+        finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public void delete(int id) throws JDBCConnectionException {
+    public void delete(int id) {
         Connection conn = null;
         try {
             conn = pool.getConnection();
@@ -131,16 +127,14 @@ public class DAOBook extends DAO<Book> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при удалении книги", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при удалении книги", e);
-            throw new JDBCConnectionException("Не удалось удалить книгу из базы данных", e);
         } finally {
             pool.releaseConnection(conn);
         }
     }
 
-    public List<Book> getAll() throws JDBCConnectionException {
+    public List<Book> getAll() {
         Connection conn = null;
         List<Book> books = new ArrayList<>();
 
@@ -162,14 +156,11 @@ public class DAOBook extends DAO<Book> {
 
         } catch (JDBCConnectionException e) {
             logger.log(Level.SEVERE, "Ошибка подключения при получении списка книг", e);
-            throw e;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Ошибка SQL при получении списка книг", e);
-            throw new JDBCConnectionException("Не удалось получить список книг из базы данных", e);
         } finally {
             pool.releaseConnection(conn);
         }
-
         return books;
     }
 }
