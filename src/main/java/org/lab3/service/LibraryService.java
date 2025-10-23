@@ -1,5 +1,6 @@
 package org.lab3.service;
 
+import org.lab3.pool.ConnectionPool;
 import org.lab3.pool.JDBCConnectionException;
 import org.lab3.dao.DAOBook;
 import org.lab3.dao.DAOLog;
@@ -86,13 +87,16 @@ public class LibraryService {
         try {
             HashMap<Book, Integer> booksInfo = new HashMap<>();
 
-            List<Log> logs = daoLog.getAll();
-            for (Log log : logs) {
-                Book book = daoBook.read(log.getBookId());
-                if (book.getAuthor().equalsIgnoreCase(author)) {
-                    int copies = getFreeCopiesOfBook(book.getAuthor(), book.getTitle());
+            List<Book> books = daoBook.getAll();
+            for (Book book : books) {
+                String bookAuthor = book.getAuthor();
+                if (bookAuthor.equalsIgnoreCase(author)) {
+                    int copies = getFreeCopiesOfBook(bookAuthor, book.getTitle());
                     booksInfo.put(book, copies);
                 }
+            }
+            if (booksInfo.isEmpty()) {
+                throw new LibraryServiceException("Нет книг этого автора");
             }
             return booksInfo;
         }
@@ -100,22 +104,36 @@ public class LibraryService {
             throw new LibraryServiceException("Ошибка доступа к БД", e);
         }
     }
-
-    public void giveBook(String name, String author, String bookTitle) throws LibraryServiceException {
+    public Reader getReaderByName(String name) throws LibraryServiceException {
         try {
-            Book targetBook = getBookByTitle(bookTitle, author);
-
             List<Reader> readers = daoReader.getAll();
+
             Reader targetReader = null;
             for (Reader reader : readers) {
                 if (reader.getName().equalsIgnoreCase(name)) {
                     targetReader = reader;
                 }
             }
+            return targetReader;
+        }
+        catch (JDBCConnectionException e) {
+            return null;
+        }
+
+    }
+
+    public void giveBook(String name, String author, String bookTitle) throws LibraryServiceException {
+        try {
+            Book targetBook = getBookByTitle(bookTitle, author);
+
+            Reader targetReader = getReaderByName(name);
+
             if (targetReader == null) {
                 targetReader = new Reader(1, name);
                 daoReader.create(targetReader);
+                targetReader = getReaderByName(name);
             }
+
             LocalDate issueDate = LocalDate.now();
             LocalDate returnDate = issueDate.plusWeeks(2);
             long debtDays = Math.max(ChronoUnit.DAYS.between(returnDate, LocalDate.now()), 0);
@@ -146,6 +164,14 @@ public class LibraryService {
         }
         catch (JDBCConnectionException e) {
             throw new LibraryServiceException("Ошибка доступа к БД", e);
+        }
+    }
+    public void closeDbConnections() throws LibraryServiceException {
+        try {
+            ConnectionPool.getInstance().closeAllConnections();
+        }
+        catch (JDBCConnectionException e) {
+            throw new LibraryServiceException(e);
         }
     }
 }

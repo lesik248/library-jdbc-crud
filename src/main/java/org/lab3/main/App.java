@@ -72,7 +72,11 @@ public class App
                         break;
                     }
                     case "0": {
+                        libraryService.closeDbConnections();
                         return;
+                    }
+                    default: {
+                        System.out.println("⚠️ Неправильная команда");
                     }
                 }
             } catch (LibraryServiceException e) {
